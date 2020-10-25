@@ -4,6 +4,9 @@ import 'package:tictactoe/core/constants.dart';
 import 'package:tictactoe/enums/player_type.dart';
 import 'package:tictactoe/enums/winner_type.dart';
 import 'package:tictactoe/widgets/custom_dialog.dart';
+import 'package:share/share.dart';
+
+
 
 class GamePage extends StatefulWidget {
   @override
@@ -34,7 +37,12 @@ class _GamePageState extends State<GamePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _buildCurrentPlayer(_controller.currentPlayerName),
+          _buildCurrentScore(_controller.winsPlayer1.toString(),
+              _controller.winsPlayer2.toString()),
           _buildBoard(),
+          _buildVerticalSpace(height: 10),          
+          _buildShareButton(),
           _buildPlayerMode(),
           _buildResetButton(),
         ],
@@ -45,10 +53,67 @@ class _GamePageState extends State<GamePage> {
   _buildResetButton() {
     return RaisedButton(
       padding: const EdgeInsets.all(20),
-      child: Text(RESET_BUTTON_LABEL),
-      onPressed: _onResetGame,
+      child: Text('ZERAR_PLACAR'),
+      onPressed: _zerarPlacar,
     );
   }
+  _buildPlayerMode() {
+    return SwitchListTile(
+      title: Text(_controller.isSinglePlayer ? 'Single Player' : 'Multiplayer'),
+      secondary: Icon(_controller.isSinglePlayer ? Icons.person : Icons.group),
+      value: _controller.isSinglePlayer,
+      onChanged: (value) {
+        setState(() {
+          _controller.isSinglePlayer = value;
+        });
+      },
+    );
+  }
+
+  _buildCurrentPlayer(String player) {
+    return Container(
+      color: Theme.of(context).accentColor.withOpacity(0.2),
+      height: 40,
+      child: Center(
+        child: Text(
+          'Playing Now: $player',
+          style: TextStyle(
+            color: Theme.of(context).accentColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _buildCurrentScore(String scorePlayer1, String scorePlayer2) {
+    return Container(
+      color: Theme.of(context).accentColor.withOpacity(0.2),
+      height: 40,
+      child: Center(
+        child: Text(
+          'Playing 1: $scorePlayer1   X   Player 2: $scorePlayer2',
+          style: TextStyle(
+            color: Theme.of(context).accentColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _buildVerticalSpace({double height = 20.0}) {
+    return SizedBox(height: height);
+  }
+
+  _buildShareButton() {
+    return RaisedButton(
+      padding: const EdgeInsets.all(20),
+      child: Text(SHARE_BUTTON_LABEL),
+      onPressed: _onShare,
+    );
+  }
+
 
   _buildBoard() {
     return Expanded(
@@ -71,12 +136,8 @@ class _GamePageState extends State<GamePage> {
       child: Container(
         color: _controller.tiles[index].color,
         child: Center(
-          child: Text(
+          child: Image.asset(
             _controller.tiles[index].symbol,
-            style: TextStyle(
-              fontSize: 72.0,
-              color: Colors.white,
-            ),
           ),
         ),
       ),
@@ -87,6 +148,17 @@ class _GamePageState extends State<GamePage> {
     setState(() {
       _controller.reset();
     });
+  }
+
+  _zerarPlacar() {
+    setState(() {
+      _controller.zero();
+    });
+  }
+
+  _onShare() {
+    Share.share(
+        'meu projeto no Github - https://github.com/Deivison-png/tic-tac-toe-flutter-1.git');
   }
 
   _onMarkTile(index) {
@@ -110,8 +182,7 @@ class _GamePageState extends State<GamePage> {
         _onMarkTile(index);
       }
     } else {
-      String symbol =
-          winner == WinnerType.player1 ? PLAYER1_SYMBOL : PLAYER2_SYMBOL;
+      String symbol = winner == WinnerType.player1 ? 'Player 1' : 'Player 2';
       _showWinnerDialog(symbol);
     }
   }
@@ -142,18 +213,5 @@ class _GamePageState extends State<GamePage> {
         );
       },
     );
-  }
-
-  _buildPlayerMode() {
-    return SwitchListTile(
-      title: Text(_controller.isSinglePlayer ? 'Single Player' : 'Two Players'),
-      secondary: Icon(_controller.isSinglePlayer ? Icons.person : Icons.group),
-      value: _controller.isSinglePlayer,
-      onChanged: (value) {
-        setState(() {
-          _controller.isSinglePlayer = value;
-        });
-      },
-    );
-  }
+  } 
 }
